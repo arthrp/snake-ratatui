@@ -2,8 +2,6 @@ use std::{
     collections::VecDeque,
 };
 use rand::Rng;
-use std::fs::File;
-use std::io::Write;
 
 #[derive(PartialEq, Clone, Copy)]
 pub enum SnakeDirection {
@@ -87,5 +85,59 @@ impl Game {
                 break;
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    
+    #[test]
+    fn test_new_game() {
+        let game = Game::new();
+        assert_eq!(game.snake.len(), 1);
+        assert_eq!(game.snake.front().unwrap(), &(10, 10));
+        assert_eq!(game.food, (5, 5));
+        assert_eq!(game.score, 0);
+        assert_eq!(game.game_over, false);
+    }
+    
+    #[test]
+    fn test_update_movement() {
+        let mut game = Game::new();
+        game.update(20, 20);
+        assert_eq!(game.snake.front().unwrap(), &(11, 10)); // Moved right
+        
+        game.direction = SnakeDirection::Down;
+        game.update(20, 20);
+        assert_eq!(game.snake.front().unwrap(), &(11, 11)); // Moved down
+    }
+    
+    #[test]
+    fn test_collision_with_wall() {
+        let mut game = Game::new();
+        game.snake.clear();
+        game.snake.push_back((8, 9));
+        game.direction = SnakeDirection::Right;
+        game.update(10, 10); // Move right to edge
+        assert_eq!(game.game_over, false);
+        
+        game.update(10, 10); // Try to move beyond edge
+        assert_eq!(game.game_over, true);
+    }
+    
+    #[test]
+    fn test_eating_food() {
+        let mut game = Game::new();
+        game.snake.clear();
+        game.snake.push_back((4, 5));
+        game.direction = SnakeDirection::Right;
+        game.food = (5, 5);
+        
+        let initial_length = game.snake.len();
+        game.update(20, 20);
+        assert_eq!(game.snake.len(), initial_length + 1);
+        assert_eq!(game.score, 1);
+        assert_ne!(game.food, (5, 5)); // Food should be regenerated
     }
 }

@@ -12,10 +12,8 @@ use ratatui::{
 use std::{
     io::{self, stdout},
     time::{Duration, Instant},
-    fs::OpenOptions,
 };
-use std::fs::File;
-use std::io::Write;
+
 mod game;
 use game::*;
 
@@ -31,16 +29,6 @@ fn main() -> io::Result<()> {
     let mut game = Game::new();
     let tick_rate = Duration::from_millis(100);
     let mut last_tick = Instant::now();
-
-    let mut file = OpenOptions::new()
-    .write(true)
-    .create(true)  // Create the file if it does not exist
-    .open("example.txt")?;
-
-    let mut file1 = OpenOptions::new()
-    .write(true)
-    .create(true)  // Create the file if it does not exist
-    .open("example1.txt")?;
 
     // Main game loop
     loop {
@@ -109,21 +97,21 @@ fn ui(f: &mut Frame, game: &Game) {
     let game_area = chunks[1];
     
     //Borders
-    let areaHeight = game_area.height - 2;
-    let areaWidth = game_area.width - 2;
-    let mut buffer = vec![vec![' '; areaWidth as usize]; areaHeight as usize];
+    let area_height = game_area.height - 2;
+    let area_width = game_area.width - 2;
+    let mut buffer = vec![vec![' '; area_width as usize]; area_height as usize];
 
 
     // Draw snake
     for &(x, y) in &game.snake {
-        if x < areaWidth && y < areaHeight {
+        if x < area_width && y < area_height {
             buffer[y as usize][x as usize] = '█';
         }
     }
 
     // Draw food
     let (food_x, food_y) = game.food;
-    if food_x < areaWidth && food_y < areaHeight {
+    if food_x < area_width && food_y < area_height {
         buffer[food_y as usize][food_x as usize] = '●';
     }
 
